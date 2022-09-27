@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/quick_start/010_model/model/target/debug/model: /Users/I576375/Code/rust-learning/quick_start/010_model/model/src/main.rs /Users/I576375/Code/rust-learning/quick_start/010_model/model/src/models/mod.rs /Users/I576375/Code/rust-learning/quick_start/010_model/model/src/models/user_model.rs
