@@ -1,0 +1,32 @@
+use crate::models::book_model::Book;
+use crate::models::phone_model::Phone;
+pub trait Prods {
+    fn new(id: i32, price: f32) -> Self;
+    fn get_price(&self)->f32;
+}
+
+impl Prods for Book{
+    fn new(id: i32, price: f32) -> Book {
+        Book { id, price }
+    }
+    fn get_price(&self)->f32 {
+        &self.price + 10.0
+    }
+}
+
+impl Prods for Phone{
+    fn new(id: i32, price: f32) -> Phone {
+        Phone { id, price }
+    }
+    fn get_price(&self)->f32 {
+        &self.price + 10.0
+    }
+}
+
+// operator overloading
+impl std::ops::Add<Book> for Book {
+    type Output=f32;
+    fn add(self, rhs: Book) -> f32{
+        self.get_price() + rhs.get_price()
+    }
+}
