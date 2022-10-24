@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/quick_start/015_macro/my_macro/target/debug/my_macro: /Users/I576375/Code/rust-learning/quick_start/015_macro/my_macro/src/main.rs /Users/I576375/Code/rust-learning/quick_start/015_macro/my_macro/src/mymacro.rs
