@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/geektime-rust/05_thumbor/target/debug/thumbor: /Users/I576375/Code/rust-learning/geektime-rust/05_thumbor/build.rs /Users/I576375/Code/rust-learning/geektime-rust/05_thumbor/src/main.rs /Users/I576375/Code/rust-learning/geektime-rust/05_thumbor/src/pb/abi.rs /Users/I576375/Code/rust-learning/geektime-rust/05_thumbor/src/pb/mod.rs

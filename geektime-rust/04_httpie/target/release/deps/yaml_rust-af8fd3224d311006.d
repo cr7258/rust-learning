@@ -1,0 +1,11 @@
+/Users/I576375/Code/rust-learning/geektime-rust/04_httpie/target/release/deps/yaml_rust-af8fd3224d311006.rmeta: /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/lib.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/emitter.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/parser.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/scanner.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/yaml.rs
+
+/Users/I576375/Code/rust-learning/geektime-rust/04_httpie/target/release/deps/libyaml_rust-af8fd3224d311006.rlib: /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/lib.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/emitter.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/parser.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/scanner.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/yaml.rs
+
+/Users/I576375/Code/rust-learning/geektime-rust/04_httpie/target/release/deps/yaml_rust-af8fd3224d311006.d: /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/lib.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/emitter.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/parser.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/scanner.rs /Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/yaml.rs
+
+/Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/lib.rs:
+/Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/emitter.rs:
+/Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/parser.rs:
+/Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/scanner.rs:
+/Users/I576375/.cargo/registry/src/index.crates.io-6f17d22bba15001f/yaml-rust-0.4.5/src/yaml.rs:
