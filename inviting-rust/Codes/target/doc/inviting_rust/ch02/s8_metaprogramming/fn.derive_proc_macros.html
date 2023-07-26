@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `derive_proc_macros` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, derive_proc_macros"><title>inviting_rust::ch02::s8_metaprogramming::derive_proc_macros - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s8_metaprogramming</a></p><div id="sidebar-vars" data-name="derive_proc_macros" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s8_metaprogramming</a>::<wbr><a class="fn" href="">derive_proc_macros</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch02/s8_metaprogramming.rs.html#425" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn derive_proc_macros()</pre><div class="docblock"><p>介绍：<a href="https://serde.rs/">serde.rs</a></p>
+<p>参阅 :  <a href="https://github.com/ZhangHanDong/proc_codegen">https://github.com/ZhangHanDong/proc_codegen</a></p>
+<p>过程宏三件套：</p>
+<ul>
+<li><a href="https://github.com/dtolnay/syn">syn</a></li>
+<li><a href="https://github.com/dtolnay/quote">quote</a></li>
+<li><a href="https://github.com/alexcrichton/proc-macro2">proc-macro2</a></li>
+</ul>
+<p>示例：封装 Diesel 方便 crud</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+
+    <span class="comment">// find_by_or!{ Person -&gt; people::[name:String || company_name:String]   }</span>
+
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DbOpByOrBy</span> {
+        <span class="kw">pub</span> <span class="ident">model</span>: <span class="ident">Type</span>,
+        <span class="kw">pub</span> <span class="ident">table</span>: <span class="ident">Ident</span>,
+        <span class="kw">pub</span> <span class="ident">bracket_token</span>: <span class="ident">token</span>::<span class="ident">Bracket</span>,
+        <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">FieldContentOr</span>,
+    }
+
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FieldContentOr</span> {
+        <span class="kw">pub</span> <span class="ident">name1</span>: <span class="ident">Ident</span>,
+        <span class="kw">pub</span> <span class="ident">ty1</span>: <span class="ident">Type</span>,
+        <span class="kw">pub</span> <span class="ident">name2</span>: <span class="ident">Ident</span>,
+        <span class="kw">pub</span> <span class="ident">ty2</span>: <span class="ident">Type</span>,
+    }
+
+    <span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">DbOpByOrBy</span> {
+        <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">content</span>;
+            <span class="kw">let</span> <span class="ident">model</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token</span><span class="macro">!</span>[<span class="op">-</span><span class="op">&gt;</span>]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">table</span>: <span class="ident">Ident</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token</span><span class="macro">!</span>[::]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">bracket_token</span> <span class="op">=</span> <span class="macro">bracketed</span><span class="macro">!</span>(<span class="ident">content</span> <span class="kw">in</span> <span class="ident">input</span>);
+            <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">DbOpByOrBy</span> {
+                <span class="ident">model</span>,
+                <span class="ident">table</span>,
+                <span class="ident">bracket_token</span>,
+                <span class="ident">content</span>,
+            })
+        }
+    }
+
+    <span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">FieldContentOr</span> {
+        <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">name1</span>: <span class="ident">Ident</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token</span><span class="macro">!</span>[:]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">ty1</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token</span><span class="macro">!</span>[<span class="op">|</span><span class="op">|</span>]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">name2</span>: <span class="ident">Ident</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+            <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="macro">Token</span><span class="macro">!</span>[:]<span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">ty2</span>: <span class="ident">Type</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">FieldContentOr</span> {
+                <span class="ident">name1</span>,
+                <span class="ident">ty1</span>,
+                <span class="ident">name2</span>,
+                <span class="ident">ty2</span>,
+            })
+        }
+    }
+
+    <span class="comment">// in lib.rs</span>
+
+    <span class="comment">// find_by_or!{ Person -&gt; people::[name:String || company_name:String]   }</span>
+
+    <span class="attribute">#[<span class="ident">proc_macro</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_by_or</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream</span> {
+        <span class="kw">let</span> <span class="ident">DbOpByOrBy</span> {
+            <span class="ident">model</span>,
+            <span class="ident">table</span>,
+            <span class="ident">bracket_token</span>,
+            <span class="ident">content</span>,
+        } <span class="op">=</span> <span class="macro">parse_macro_input</span><span class="macro">!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">DbOpByOrBy</span>);
+        <span class="kw">let</span> (<span class="ident">name1</span>, <span class="ident">name2</span>) <span class="op">=</span> (<span class="ident">content</span>.<span class="ident">name1</span>, <span class="ident">content</span>.<span class="ident">name2</span>);
+        <span class="kw">let</span> (<span class="ident">ty1</span>, <span class="ident">ty2</span>) <span class="op">=</span> (<span class="ident">content</span>.<span class="ident">ty1</span>, <span class="ident">content</span>.<span class="ident">ty2</span>);
+        <span class="kw">let</span> <span class="ident">fn_name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;find_by_{}_or_{}&quot;</span>, <span class="ident">name1</span>, <span class="ident">name2</span>);
+        <span class="kw">let</span> <span class="ident">fn_name</span> <span class="op">=</span> <span class="ident">Ident</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">fn_name</span>, <span class="ident">proc_macro2</span>::<span class="ident">Span</span>::<span class="ident">call_site</span>());
+
+        <span class="kw">let</span> <span class="ident">expanded</span> <span class="op">=</span> <span class="macro">quote</span><span class="macro">!</span> {
+            <span class="kw">impl</span> #<span class="ident">model</span> {
+                <span class="kw">pub</span> <span class="kw">fn</span> #<span class="ident">fn_name</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;</span><span class="ident">PgConnection</span>, #<span class="ident">name1</span>: #<span class="ident">ty1</span>, #<span class="ident">name2</span>: #<span class="ident">ty2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">QueryResult</span><span class="op">&lt;</span>#<span class="ident">model</span><span class="op">&gt;</span> {
+                    #<span class="ident">table</span>::<span class="ident">table</span>
+                    .<span class="ident">filter</span>(#<span class="ident">table</span>::<span class="ident">dsl</span>::#<span class="ident">name1</span>.<span class="ident">eq</span>(#<span class="ident">name1</span>))
+                    .<span class="ident">or_filter</span>(#<span class="ident">table</span>::<span class="ident">dsl</span>::#<span class="ident">name2</span>.<span class="ident">eq</span>(#<span class="ident">name2</span>))
+                    .<span class="ident">get_result</span>(<span class="ident">conn</span>)
+                }
+            }
+        };
+        <span class="ident">TokenStream</span>::<span class="ident">from</span>(<span class="ident">expanded</span>)
+    }
+
+</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0A%0A%20%20%20%20%2F%2F%20find_by_or!%7B%20Person%20-%3E%20people%3A%3A%5Bname%3AString%20%7C%7C%20company_name%3AString%5D%20%20%20%7D%0A%0Afn%20main()%20%7B%0Ause%20super%3A%3A*%3B%0A%0A%20%20%20%20pub%20struct%20DbOpByOrBy%20%7B%0A%20%20%20%20%20%20%20%20pub%20model%3A%20Type%2C%0A%20%20%20%20%20%20%20%20pub%20table%3A%20Ident%2C%0A%20%20%20%20%20%20%20%20pub%20bracket_token%3A%20token%3A%3ABracket%2C%0A%20%20%20%20%20%20%20%20pub%20content%3A%20FieldContentOr%2C%0A%20%20%20%20%7D%0A%0A%20%20%20%20pub%20struct%20FieldContentOr%20%7B%0A%20%20%20%20%20%20%20%20pub%20name1%3A%20Ident%2C%0A%20%20%20%20%20%20%20%20pub%20ty1%3A%20Type%2C%0A%20%20%20%20%20%20%20%20pub%20name2%3A%20Ident%2C%0A%20%20%20%20%20%20%20%20pub%20ty2%3A%20Type%2C%0A%20%20%20%20%7D%0A%0A%20%20%20%20impl%20Parse%20for%20DbOpByOrBy%20%7B%0A%20%20%20%20%20%20%20%20fn%20parse(input%3A%20ParseStream)%20-%3E%20Result%3CSelf%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20content%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20model%3A%20Type%20%3D%20input.parse()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20input.parse%3A%3A%3CToken!%5B-%3E%5D%3E()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20table%3A%20Ident%20%3D%20input.parse()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20input.parse%3A%3A%3CToken!%5B%3A%3A%5D%3E()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20bracket_token%20%3D%20bracketed!(content%20in%20input)%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20content%20%3D%20content.parse()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Ok(DbOpByOrBy%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20model%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20table%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20bracket_token%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20content%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D)%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20impl%20Parse%20for%20FieldContentOr%20%7B%0A%20%20%20%20%20%20%20%20fn%20parse(input%3A%20ParseStream)%20-%3E%20Result%3CSelf%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20name1%3A%20Ident%20%3D%20input.parse()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20input.parse%3A%3A%3CToken!%5B%3A%5D%3E()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20ty1%3A%20Type%20%3D%20input.parse()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20input.parse%3A%3A%3CToken!%5B%7C%7C%5D%3E()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20name2%3A%20Ident%20%3D%20input.parse()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20input.parse%3A%3A%3CToken!%5B%3A%5D%3E()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20let%20ty2%3A%20Type%20%3D%20input.parse()%3F%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20Ok(FieldContentOr%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20name1%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20ty1%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20name2%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20ty2%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D)%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20%2F%2F%20in%20lib.rs%0A%0A%20%20%20%20%2F%2F%20find_by_or!%7B%20Person%20-%3E%20people%3A%3A%5Bname%3AString%20%7C%7C%20company_name%3AString%5D%20%20%20%7D%0A%0A%20%20%20%20%23%5Bproc_macro%5D%0A%20%20%20%20pub%20fn%20find_by_or(input%3A%20TokenStream)%20-%3E%20TokenStream%20%7B%0A%20%20%20%20%20%20%20%20let%20DbOpByOrBy%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20model%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20table%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20bracket_token%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20content%2C%0A%20%20%20%20%20%20%20%20%7D%20%3D%20parse_macro_input!(input%20as%20DbOpByOrBy)%3B%0A%20%20%20%20%20%20%20%20let%20(name1%2C%20name2)%20%3D%20(content.name1%2C%20content.name2)%3B%0A%20%20%20%20%20%20%20%20let%20(ty1%2C%20ty2)%20%3D%20(content.ty1%2C%20content.ty2)%3B%0A%20%20%20%20%20%20%20%20let%20fn_name%20%3D%20format!(%22find_by_%7B%7D_or_%7B%7D%22%2C%20name1%2C%20name2)%3B%0A%20%20%20%20%20%20%20%20let%20fn_name%20%3D%20Ident%3A%3Anew(%26fn_name%2C%20proc_macro2%3A%3ASpan%3A%3Acall_site())%3B%0A%0A%20%20%20%20%20%20%20%20let%20expanded%20%3D%20quote!%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20impl%20%23model%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20pub%20fn%20%23fn_name(conn%3A%20%26PgConnection%2C%20%23name1%3A%20%23ty1%2C%20%23name2%3A%20%23ty2)%20-%3E%20QueryResult%3C%23model%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%23table%3A%3Atable%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.filter(%23table%3A%3Adsl%3A%3A%23name1.eq(%23name1))%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.or_filter(%23table%3A%3Adsl%3A%3A%23name2.eq(%23name2))%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.get_result(conn)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20TokenStream%3A%3Afrom(expanded)%0A%20%20%20%20%7D%0A%7D&amp;edition=2018">Run</a></div>
+<p>有用的第三方库：</p>
+<ul>
+<li><a href="https://github.com/JelteF/derive_more">derive_more</a></li>
+</ul>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

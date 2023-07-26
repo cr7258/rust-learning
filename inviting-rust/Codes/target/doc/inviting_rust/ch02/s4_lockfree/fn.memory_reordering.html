@@ -1,0 +1,251 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `memory_reordering` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, memory_reordering"><title>inviting_rust::ch02::s4_lockfree::memory_reordering - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s4_lockfree</a></p><div id="sidebar-vars" data-name="memory_reordering" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s4_lockfree</a>::<wbr><a class="fn" href="">memory_reordering</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch02/s4_lockfree.rs.html#279" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn memory_reordering()</pre><div class="docblock"><h3 id="并发编程注重的三点" class="section-header"><a href="#并发编程注重的三点">并发编程注重的三点：</a></h3>
+<ol>
+<li>原子性。保证操作是原子的。</li>
+<li>可见性。保证数据是同步的。</li>
+<li>顺序性。保证操作的顺序是正确的。</li>
+</ol>
+<p>方法：</p>
+<ul>
+<li>同步锁</li>
+<li>无锁编程</li>
+</ul>
+<h3 id="思考锁带来的问题" class="section-header"><a href="#思考锁带来的问题">思考：锁带来的问题？</a></h3>
+<ol>
+<li>性能。引入无锁编程可以最大化减少线程上下文切换，线程等待。</li>
+<li>死锁。引入无锁编程就不会产生死锁。</li>
+</ol>
+<p>无锁编程性能并不是总是优于锁同步。</p>
+<p>无锁编程依赖于原子类型，使用原子类型还需要深入了解一些概念。</p>
+<h3 id="理解无锁并发的关键在于理解计算机组成" class="section-header"><a href="#理解无锁并发的关键在于理解计算机组成">理解无锁并发的关键在于理解计算机组成</a></h3>
+<pre><code class="language-text">+------+    +------+    +------+
+| core |    | core |    | core |
++---+--+    +---+--+    +---+--+
+    |           |           |
++lv1+--+    +-lv1--+    +lv1---+
+|cache |    |cache |    | cache|
++---+--+    +---+--+    +---+--+
+    |           |           |
++lv2---+    +lv2---+    +lv2---+
+| cache|    | cache|    | cache|
++---+--+    +---+--+    +---+--+
+    |           |           |
+    +-----------------------+
+                |
++---------------+--------------+
+|           lv3 cache          |
++---------------+--------------+
+                |
+                |
++---------------+--------------+
+|          main memory         |
++------------------------------+
+
+</code></pre>
+<h3 id="缓存一致性问题" class="section-header"><a href="#缓存一致性问题">缓存一致性问题</a></h3>
+<p>思考：下面代码最终执行后 x 和 y 的状态上什么？</p>
+<pre><code class="language-text">// THREAD 1                       
+
+if unsafe { *x == 1 } {
+    unsafe { *y += 1 }
+}                   
+    
+// THREAD 2
+unsafe {
+    *y = 10;
+    *x = 1;
+}
+</code></pre>
+<p>最终结果实际取决于下面几个问题：</p>
+<ol>
+<li>THREAD 1 和 THREAD 2 运行顺序是什么？ （使用锁同步可以保证“喂给” CPU 的指令锁有顺序性的）</li>
+<li>每一个 CPU 使用的高速缓存的状态 （要保证缓存一致性）</li>
+<li>CPU 指令重排（乱序执行，为了更好的利用流水线，达到性能极致）</li>
+<li>编译器指令重排 （调整指令顺序，使其对 CPU 更友好）</li>
+</ol>
+<blockquote>
+<p>高速缓存通过 M(Modified)E(Exclusive)S(Shared)I(Invalid) 协议来保持同步。MESI的有趣之处在于，每个高速缓存行都在维护自己的内存地址状态机。
+一个 CPU 通过 IPC (Inter-Processor-Communication) 向 另一个 CPU 来发送消息，比如，「独占内存地址」、「修改内存数据」等。
+这里要注意，CPU 并不是做来某些操作马上发出消息或者是收到消息马上就执行相应操作的。也就是说，CPU 通信的这些消息都是异步的。
+如果 CPU 多核之间用同步通信的话，性能上无法接受。比如一个 CPU 要等待其他 CPU 来确认信息，或从其他 CPU 获取最新数据等。
+所以，为了让 CPU 核之间可以高性能地同步信息（保证cpu乱序执行指令的同时，还要保证程序正确性），就引入了内存屏障的技术。</p>
+</blockquote>
+<h3 id="内存屏障" class="section-header"><a href="#内存屏障">内存屏障</a></h3>
+<p>内存屏障允许开发者在编写代码等时候在需要等地方加入它。</p>
+<p>内存屏障分为：</p>
+<ol>
+<li>读屏障（Load Memory Barrier）。任何「读屏障」前的「读操作」都会先于「读屏障」后的「读操作」完成。</li>
+<li>写屏障（Store Memory Barrier）。任何「写屏障」前的「写操作」都会先于「写屏障」后的「写操作」完成。</li>
+<li>全屏障。同时包含读屏障和写屏障的作用。</li>
+</ol>
+<p>load，代表从内存读数据。store，代表向内存写数据。</p>
+<p>现代 CPU 架构中一般分为四种内存屏障：</p>
+<ol>
+<li>Load-Load: 等价于上面介绍的「读屏障」。任何「该屏障」前的「读操作」都会先于「该屏障」后的「读操作」完成。</li>
+<li>Load-Store: 任何「该屏障」前的「读操作」都会先于「该屏障后」的「写操作」完成。</li>
+<li>Store-Load: 任何「该屏障」前的「写操作」都会先于「该屏障后」的「读操作」完成。</li>
+<li>Store-Store: 等价于上面介绍的「写屏障」。任何「该屏障」前的「写操作」都会先于「该屏障」后的「写操作」完成。</li>
+</ol>
+<p>开发者通过内存屏障，告诉 CPU/编译器 内存屏障前后指令的顺序关系，这样 CPU/编译器 就不会重排这些指令，从而保证原子指令的顺序性。</p>
+<h3 id="内存模型" class="section-header"><a href="#内存模型">内存模型</a></h3>
+<p>这么多内存屏障，什么时候该使用哪种，需要由开发者来指定。这道理和 Unsafe Rust 类似，编译器无法检查的安全性，交给开发者。</p>
+<p>这就是语言提供内存模型的原因。Cpp 和 Rust 语言都提供了原子（Atomic）类型，并且这些原子类型都是可以指定内存顺序（告诉CPU使用哪种内存屏障）</p>
+<p>Rust 目前并没有正式的内存顺序模型，但是它在语义和行为上和 Cpp 一致。</p>
+<p>由此引申出内存屏障都两种语义：</p>
+<ol>
+<li>acquire（获取）语义。Load 之后的读写操作无法被重排至 Load 之前。即 相当于Load-Load和Load-Store屏障。</li>
+<li>release（释放）语义。Store 之前的读写操作无法被重排至 Store 之后。即 相当于Load-Store和Store-Store屏障。</li>
+</ol>
+<h3 id="原子操作" class="section-header"><a href="#原子操作">原子操作</a></h3>
+<p>Rust 标准库中定义的原子类型：<a href="https://doc.rust-lang.org/stable/std/sync/atomic/index.html">std::sync::atomic: https://doc.rust-lang.org/stable/std/sync/atomic/index.html</a>
+其中<code>// std::sync::atomic::Ordering</code>定义了 Rust 支持的内存顺序，官方文档指出，当前和 Cpp20 的内存顺序是一致的。</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// std::sync::atomic::Ordering</span>
+
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Ordering</span> {
+    <span class="ident">Relaxed</span>,
+    <span class="ident">Release</span>,
+    <span class="ident">Acquire</span>,
+    <span class="ident">AcqRel</span>,
+    <span class="ident">SeqCst</span>,
+}</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0A%2F%2F%20std%3A%3Async%3A%3Aatomic%3A%3AOrdering%0A%0Afn%20main()%20%7B%0Apub%20enum%20Ordering%20%7B%0A%20%20%20%20Relaxed%2C%0A%20%20%20%20Release%2C%0A%20%20%20%20Acquire%2C%0A%20%20%20%20AcqRel%2C%0A%20%20%20%20SeqCst%2C%0A%7D%0A%7D&amp;edition=2018">Run</a></div>
+<p>注意，Rust 当前并没有公开 cpp 里面包含对 consume 语义。</p>
+<p>内存顺序说明：</p>
+<ul>
+<li>Relaxed，表示原子类型只保证原子操作即可，没有内存顺序（不指定内存屏障）</li>
+<li>Release，
+<ul>
+<li>表示使用 Release 语义。</li>
+<li>当前线程内的所有写操作，对于其他对这个原子变量进行 acquire 的线程可见</li>
+</ul>
+</li>
+<li>Acquire，
+<ul>
+<li>表示使用 Acquire 语义。</li>
+<li>acquire 可以保证读到所有在 release 前发生的写入。</li>
+</ul>
+</li>
+<li>AcqRel，
+<ul>
+<li>表示对读取和写入施加 acquire-release 语义，无法被重排。</li>
+<li>可以看见其他线程施加 release 语义的所有写入，同时自己的 release 结束后所有写入对其他施加 acquire 语义的线程可见。</li>
+</ul>
+</li>
+<li>SeqCst，
+<ul>
+<li>如果是读取就是 acquire 语义，如果是写入就是 release 语义，如果是读取+写入就是 acquire-release 语义。</li>
+<li>所有线程都能以相同的顺序看到所有顺序一致的操作。</li>
+</ul>
+</li>
+</ul>
+<p>不同对内存顺序，对应不同对内存屏障，进一步，也代表了不同的性能。
+在竞争条件比较激烈的情况下，Relaxed 性能是最好的，因为它不需要任何内存屏障，这就意味着CPU之间不需要进行一致性同步。
+相对而言，SeqCst 就是性能最差的那个了，因为它需要 CPU 同步所有指令。
+但是 Relaxed 因为没有内存屏障，所以可能会有指令重排带来带风险。
+所以，Rust 标准库也提供了<code> std::sync::atomic::compiler_fence</code>和<code> std::sync::atomic::fence</code>两个函数，来帮助解决在原子指令使用 Relaxed 内存顺序的情况下编译器或CPU指令重排的问题。</p>
+<p>示例：<a href="https://doc.rust-lang.org/stable/std/sync/atomic/fn.compiler_fence.html">https://doc.rust-lang.org/stable/std/sync/atomic/fn.compiler_fence.html</a></p>
+<p>原子类型提供的方法，基于硬件原子指令 (x均为std::atomic)	：</p>
+<ul>
+<li><code>load</code>，返回x的值。</li>
+<li><code>store</code>，把x设为n，什么都不返回。</li>
+<li><code>swap</code>，把x设为n，返回设定之前的值。</li>
+<li><code>compare_and_swap</code>，经典cas操作。</li>
+<li>`compare_exchange.</li>
+<li>`compare_exchange_weak</li>
+<li><code>fetch_add(n), fetch_sub(n)</code>，原子地做x += n, x-= n，返回修改之前的值。</li>
+</ul>
+<p>使用原子类型需要注意的是：</p>
+<ul>
+<li>Store操作，可选内存顺序：Relaxed, Release, SeqCst。否则panic。</li>
+<li>Load操作，可选内存顺序：Relaxed, Acquire, SeqCst。否则panic。</li>
+<li>Read-modify-write(读-改-写)操作，可选如下顺序：Relaxed, Acquire, Release, AcqRel, SeqCst。</li>
+<li>所有操作的默认顺序都是 SeqCst。</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="comment">// 实现一个简单的自旋锁（spinlock）</span>
+   
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicUsize</span>, <span class="ident">Ordering</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">thread</span>, <span class="ident">time</span>};
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+   <span class="kw">let</span> <span class="ident">spinlock</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">AtomicUsize</span>::<span class="ident">new</span>(<span class="number">1</span>));
+
+   <span class="kw">let</span> <span class="ident">spinlock_clone</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="ident">spinlock</span>);
+   <span class="kw">let</span> <span class="ident">thread</span> <span class="op">=</span> <span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span><span class="op">|</span><span class="op">|</span> {
+       <span class="comment">// lock</span>
+       <span class="ident">spinlock_clone</span>.<span class="ident">store</span>(<span class="number">1</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+       <span class="comment">// do something</span>
+       <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">time</span>::<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">3</span>);
+       <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">sleep</span>(<span class="ident">t</span>);
+       <span class="comment">// unlock</span>
+       <span class="ident">spinlock_clone</span>.<span class="ident">store</span>(<span class="number">0</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+   });
+
+   <span class="comment">// Wait for the other thread to release the lock</span>
+   <span class="kw">while</span> <span class="ident">spinlock</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>) <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {}
+
+   <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">panic</span>) <span class="op">=</span> <span class="ident">thread</span>.<span class="ident">join</span>() {
+       <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Thread had an error: {:?}&quot;</span>, <span class="ident">panic</span>);
+   }
+}
+</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0A%2F%2F%20%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E8%87%AA%E6%97%8B%E9%94%81%EF%BC%88spinlock%EF%BC%89%0A%20%20%20%0Ause%20std%3A%3Async%3A%3AArc%3B%0Ause%20std%3A%3Async%3A%3Aatomic%3A%3A%7BAtomicUsize%2C%20Ordering%7D%3B%0Ause%20std%3A%3A%7Bthread%2C%20time%7D%3B%0A%0Afn%20main()%20%7B%0A%20%20%20let%20spinlock%20%3D%20Arc%3A%3Anew(AtomicUsize%3A%3Anew(1))%3B%0A%0A%20%20%20let%20spinlock_clone%20%3D%20Arc%3A%3Aclone(%26spinlock)%3B%0A%20%20%20let%20thread%20%3D%20thread%3A%3Aspawn(move%7C%7C%20%7B%0A%20%20%20%20%20%20%20%2F%2F%20lock%0A%20%20%20%20%20%20%20spinlock_clone.store(1%2C%20Ordering%3A%3ASeqCst)%3B%0A%20%20%20%20%20%20%20%2F%2F%20do%20something%0A%20%20%20%20%20%20%20let%20t%20%3D%20time%3A%3ADuration%3A%3Afrom_secs(3)%3B%0A%20%20%20%20%20%20%20std%3A%3Athread%3A%3Asleep(t)%3B%0A%20%20%20%20%20%20%20%2F%2F%20unlock%0A%20%20%20%20%20%20%20spinlock_clone.store(0%2C%20Ordering%3A%3ASeqCst)%3B%0A%20%20%20%7D)%3B%0A%0A%20%20%20%2F%2F%20Wait%20for%20the%20other%20thread%20to%20release%20the%20lock%0A%20%20%20while%20spinlock.load(Ordering%3A%3ASeqCst)%20!%3D%200%20%7B%7D%0A%0A%20%20%20if%20let%20Err(panic)%20%3D%20thread.join()%20%7B%0A%20%20%20%20%20%20%20println!(%22Thread%20had%20an%20error%3A%20%7B%3A%3F%7D%22%2C%20panic)%3B%0A%20%20%20%7D%0A%7D&amp;edition=2018">Run</a></div>
+<p>利用 AtomicBool 实现一个 轻量级的锁 ：</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">Ordering</span>;
+<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">AtomicBool</span>;
+
+<span class="kw">struct</span> <span class="ident">LightLock</span>(<span class="ident">AtomicBool</span>);
+
+<span class="kw">impl</span> <span class="ident">LightLock</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LightLock</span> {
+        <span class="ident">LightLock</span>(<span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">false</span>))
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_lock</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LightGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">was_locked</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">swap</span>(<span class="bool-val">true</span>, <span class="ident">Ordering</span>::<span class="ident">Acquire</span>);
+        <span class="kw">if</span> <span class="ident">was_locked</span> {
+            <span class="prelude-val">None</span>
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">LightGuard</span> { <span class="ident">lock</span>: <span class="self">self</span> })
+        }
+    }
+}
+
+<span class="kw">struct</span> <span class="ident">LightGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">lock</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">LightLock</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">LightGuard</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">lock</span>.<span class="number">0</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering</span>::<span class="ident">Release</span>);
+    }
+}</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Afn%20main()%20%7B%0Ause%20std%3A%3Async%3A%3Aatomic%3A%3AOrdering%3B%0Ause%20core%3A%3Async%3A%3Aatomic%3A%3AAtomicBool%3B%0A%0Astruct%20LightLock(AtomicBool)%3B%0A%0Aimpl%20LightLock%20%7B%0A%20%20%20%20pub%20fn%20new()%20-%3E%20LightLock%20%7B%0A%20%20%20%20%20%20%20%20LightLock(AtomicBool%3A%3Anew(false))%0A%20%20%20%20%7D%0A%0A%20%20%20%20pub%20fn%20try_lock%3C'a%3E(%26'a%20self)%20-%3E%20Option%3CLightGuard%3C'a%3E%3E%20%7B%0A%20%20%20%20%20%20%20%20let%20was_locked%20%3D%20self.0.swap(true%2C%20Ordering%3A%3AAcquire)%3B%0A%20%20%20%20%20%20%20%20if%20was_locked%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20None%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20Some(LightGuard%20%7B%20lock%3A%20self%20%7D)%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Astruct%20LightGuard%3C'a%3E%20%7B%0A%20%20%20%20lock%3A%20%26'a%20LightLock%2C%0A%7D%0A%0Aimpl%3C'a%3E%20Drop%20for%20LightGuard%3C'a%3E%20%7B%0A%20%20%20%20fn%20drop(%26mut%20self)%20%7B%0A%20%20%20%20%20%20%20%20self.lock.0.store(false%2C%20Ordering%3A%3ARelease)%3B%0A%20%20%20%20%7D%0A%7D%0A%7D&amp;edition=2018">Run</a></div>
+<h3 id="aba-问题" class="section-header"><a href="#aba-问题">ABA 问题：</a></h3>
+<p>任何无 GC 的语言在无锁编程的时候都要考虑此问题。</p>
+<p>试想一个连续压栈（push）和 出栈（pop）的并发操作。假设这两个操作都是由 cas 原语实现的。</p>
+<blockquote>
+<p>具体来说，假如有两个线程 T1 和 T2，操作初始栈为「a-&gt;b-&gt;c」的栈结构。
+当 T1 把 a 从栈内弹出，此时发生线程调度，
+切换到 T2 ，T2 弹出 a 和 b，把 a 再 push 到栈里，此时 T2 的栈为 「a-&gt;c」。
+然后线程切回 T1 ，T1 看到栈顶（a）的地址和它之前获得的 a 地址相同，然后将 栈顶设置为 b （a.next），然而 b 早就被释放来。</p>
+</blockquote>
+<p>这就是 ABA 问题。ABA 问题本质是内存回收问题。当 b 被弹出当时候，要保障它当内存不能被立即重用。</p>
+<p>解决该问题的思路有多种：引用计数、分代回收（Epoch Based Reclamation）和 险象指针（Hazard pointer）。</p>
+<p>注意：ABA 问题一般是发生在 X86 架构上 cas 原子操作的时候。ARM 架构已经从根源上解决了 ABA 问题。</p>
+<ul>
+<li>分代回收示例：<a href="https://github.com/crossbeam-rs/crossbeam/blob/master/crossbeam-epoch/examples/sanitize.rs">https://github.com/crossbeam-rs/crossbeam/blob/master/crossbeam-epoch/examples/sanitize.rs</a></li>
+<li>险象指针示例：
+<ul>
+<li><a href="https://github.com/solotzg/rs-lockfree/blob/master/src/hazard_pointer.rs">https://github.com/solotzg/rs-lockfree/blob/master/src/hazard_pointer.rs</a></li>
+<li><a href="https://github.com/redox-os/conc/blob/master/src/sync/treiber.rs">https://github.com/redox-os/conc/blob/master/src/sync/treiber.rs</a></li>
+</ul>
+</li>
+</ul>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

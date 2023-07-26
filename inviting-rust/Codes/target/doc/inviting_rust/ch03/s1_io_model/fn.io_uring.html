@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `io_uring` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, io_uring"><title>inviting_rust::ch03::s1_io_model::io_uring - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a></p><div id="sidebar-vars" data-name="io_uring" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a>::<wbr><a class="fn" href="">io_uring</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch03/s1_io_model.rs.html#190" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn io_uring()</pre><div class="docblock"><h2 id="io_uring-异步-io-模型" class="section-header"><a href="#io_uring-异步-io-模型">io_uring 异步 I/O 模型</a></h2>
+<p>Linux AIO 实现的并不理想，所以引入了新的异步I/O接口 io_uring。</p>
+<pre><code class="language-text">+----+ Head  +---------+               +----------+ Head
+|            |         |               |          |
+|            |         |               |          |
+|            +---------+               +----------+
+|            |         |               |          |
+|            |         |               |          |
+|            +---------+               +----------+
+|            |         |               |          |
+|            |         |               |          |
+|            +---------+               +----------+
+|            |         |               |          |
+|      Tail  +---------+               +----------+ Tail &lt;--+
+|        +--------------------------------------------+     |
+|        | Kernel                                     |     |
+|        |                                            |     |
+|        |        +-------+              +-------+    |     |
+|        |        |       |              |       |    |     |
++---------------&gt; | SQ    |              |  CQ   | +--------+
+         |        |       |              |       |    |
+         |        +-------+              +-------+    |
+         |                                            |
+         +--------------------------------------------+
+
+</code></pre>
+<p>io_uring接口通过两个主要数据结构工作：</p>
+<ul>
+<li>提交队列条目（sqe）</li>
+<li>完成队列条目（cqe）</li>
+</ul>
+<p>这些结构的实例位于内核和应用程序之间的<strong>共享内存</strong>单生产者单消费者环形缓冲区中。</p>
+<p>参考：</p>
+<p><a href="https://thenewstack.io/how-io_uring-and-ebpf-will-revolutionize-programming-in-linux/">https://thenewstack.io/how-io_uring-and-ebpf-will-revolutionize-programming-in-linux/</a></p>
+<p><a href="https://cor3ntin.github.io/posts/iouring/#io_uring">https://cor3ntin.github.io/posts/iouring/#io_uring</a></p>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

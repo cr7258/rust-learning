@@ -1,0 +1,172 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `compiler_oriented_programming` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, compiler_oriented_programming"><title>inviting_rust::ch02::s6_paradigms::compiler_oriented_programming - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s6_paradigms</a></p><div id="sidebar-vars" data-name="compiler_oriented_programming" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s6_paradigms</a>::<wbr><a class="fn" href="">compiler_oriented_programming</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch02/s6_paradigms.rs.html#193-195" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn compiler_oriented_programming()</pre><div class="docblock"><h3 id="rust-是面向对象语言吗" class="section-header"><a href="#rust-是面向对象语言吗">Rust 是面向对象语言吗？</a></h3>
+<p>OOP style:</p>
+<ol>
+<li>支持面向接口编程</li>
+<li>支持封装</li>
+<li>不支持继承(但可以模拟)</li>
+</ol>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="ident">interface</span> <span class="ident">Foo</span> {}
+<span class="ident">class</span> <span class="ident">Bar</span>: <span class="ident">Foo</span> {
+    <span class="comment">//Implement Foo here</span>
+}</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Afn%20main()%20%7B%0Ainterface%20Foo%20%7B%7D%0Aclass%20Bar%3A%20Foo%20%7B%0A%20%20%20%20%2F%2FImplement%20Foo%20here%0A%7D%0A%7D&amp;edition=2018">Run</a></div>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">trait</span> <span class="ident">Foo</span> {}
+<span class="kw">struct</span> <span class="ident">Bar</span>;
+<span class="kw">impl</span> <span class="ident">Bar</span>;
+<span class="kw">impl</span> <span class="ident">Foo</span> <span class="kw">for</span> <span class="ident">Bar</span> {}</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Afn%20main()%20%7B%0Atrait%20Foo%20%7B%7D%0Astruct%20Bar%3B%0Aimpl%20Bar%3B%0Aimpl%20Foo%20for%20Bar%20%7B%7D%0A%7D&amp;edition=2018">Run</a></div>
+<h3 id="rust-是函数式语言吗" class="section-header"><a href="#rust-是函数式语言吗">Rust 是函数式语言吗？</a></h3>
+<p>函数式style：</p>
+<ol>
+<li>默认不可变（但也支持可变）</li>
+<li>支持递归（但不支持尾递归优化）</li>
+<li>函数是一等公民，高阶函数支持（有限）</li>
+<li>和类型/ 积类型 (Option/Result)</li>
+</ol>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">fn</span> <span class="ident">get_sum</span>(<span class="kw-2">mut</span> <span class="ident">total</span>: <span class="ident">u32</span>, <span class="kw-2">mut</span> <span class="ident">i</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">10000000</span> {
+        <span class="kw">return</span> <span class="ident">total</span>;
+    }
+
+    <span class="ident">total</span> <span class="op">=</span> <span class="ident">total</span>.<span class="ident">wrapping_add</span>(<span class="ident">i</span>);
+    <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="ident">get_sum</span>(<span class="ident">total</span>, <span class="ident">i</span>)
+}
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">get_sum</span>(<span class="ident">total</span>, <span class="number">1</span>);
+    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">total</span>);
+}
+</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Afn%20get_sum(mut%20total%3A%20u32%2C%20mut%20i%3A%20u32)%20-%3E%20u32%20%7B%0A%20%20%20%20if%20i%20%3E%2010000000%20%7B%0A%20%20%20%20%20%20%20%20return%20total%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20total%20%3D%20total.wrapping_add(i)%3B%0A%20%20%20%20i%20%2B%3D%201%3B%0A%20%20%20%20get_sum(total%2C%20i)%0A%7D%0Afn%20main()%20%7B%0A%20%20%20%20let%20total%20%3D%200%3B%0A%20%20%20%20let%20total%20%3D%20get_sum(total%2C%201)%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20total)%3B%0A%7D&amp;edition=2018">Run</a></div>
+<p>curring:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">States</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">i32</span>,
+    <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">i32</span>,
+}
+
+<span class="kw">trait</span> <span class="ident">Currying</span> {
+    <span class="kw">type</span> <span class="ident">ReturnType</span>: <span class="ident">Fn</span>(<span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">ReturnType</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">Currying</span> <span class="kw">for</span> <span class="ident">States</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>{
+    <span class="kw">type</span> <span class="ident">ReturnType</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">ReturnType</span> {
+        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span><span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="ident">x</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">a</span>
+        })
+    }
+}
+
+<span class="kw">let</span> <span class="ident">r_value</span>: <span class="ident">States</span> <span class="op">=</span> <span class="ident">States</span> {
+    <span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="number">100</span>,
+    <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="number">100</span>
+};
+
+<span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">r_value</span>.<span class="ident">add</span>();
+<span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">r1</span>(<span class="number">5</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">500</span>, <span class="ident">r2</span>);</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Afn%20main()%20%7B%0A%23%5Bderive(Debug)%5D%0Astruct%20States%3C'a%3E%20%7B%0A%20%20%20%20a%3A%20%26'a%20i32%2C%0A%20%20%20%20b%3A%20%26'a%20i32%2C%0A%7D%0A%0Atrait%20Currying%20%7B%0A%20%20%20%20type%20ReturnType%3A%20Fn(i32)%20-%3E%20i32%3B%0A%20%20%20%20fn%20add(self)%20-%3E%20Self%3A%3AReturnType%3B%0A%7D%0A%0Aimpl%20Currying%20for%20States%3C'static%3E%7B%0A%20%20%20%20type%20ReturnType%20%3D%20Box%3Cdyn%20Fn(i32)%20-%3E%20i32%3E%3B%0A%0A%20%20%20%20fn%20add(self)%20-%3E%20Self%3A%3AReturnType%20%7B%0A%20%20%20%20%20%20%20%20Box%3A%3Anew(move%7Cx%7C%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20x%20*%20self.a%0A%20%20%20%20%20%20%20%20%7D)%0A%20%20%20%20%7D%0A%7D%0A%0Alet%20r_value%3A%20States%20%3D%20States%20%7B%0A%20%20%20%20a%3A%20%26100%2C%0A%20%20%20%20b%3A%20%26100%0A%7D%3B%0A%0Alet%20r1%20%3D%20r_value.add()%3B%0Alet%20r2%20%3D%20r1(5)%3B%0A%0Aassert_eq!(500%2C%20r2)%3B%0A%7D&amp;edition=2018">Run</a></div>
+<h3 id="rust-是-面向编译器-编程的语言" class="section-header"><a href="#rust-是-面向编译器-编程的语言">Rust 是 面向编译器 编程的语言</a></h3>
+<pre><code class="language-text">+----------------------------------------------------+
+|                crate                               |
+|                                                    |
+|      +-----------------------------------+         |
+|      |           std                     |         |
+|      |                                   |         |
+|      |       +---------------------+     |         |
+|      |       |                     |     |         |
+|      |       |     core            |     |         |
+|      |       |    +----------+     |     |         |
+|      |       |    | compiler |     |     |         |
+|      |       |    +----------+     |     |         |
+|      |       |                     |     |         |
+|      |       +---------------------+     |         |
+|      |                                   |         |
+|      |                                   |         |
+|      +-----------------------------------+         |
+|                                                    |
+|                                                    |
++----------------------------------------------------+
+
+</code></pre>
+<p>查看 Rust 源码组织结构： <a href="https://github.com/rust-lang/rust">https://github.com/rust-lang/rust</a></p>
+<p>洋葱模型：</p>
+<ol>
+<li>最小内核所谓所有权和借用规则，就是编译器特性</li>
+<li>基于最小内核开始构造了 core</li>
+<li>基于core 构造了 std</li>
+<li>基于 std 构造生态 crate</li>
+<li>命令式编程为主（类 C），OOP 和 FP Style 辅助</li>
+</ol>
+<p>典型的实现：<a href="https://github.com/rust-lang/rust/blob/master/library/core/src/cell.rs">std::cell::Cell</a></p>
+<p>Cell 的语义：</p>
+<ol>
+<li>在不可变引用的基础上构造一个安全的内部可变性</li>
+<li>只针对实现 Copy 的类型提供 get 方法</li>
+<li>对于 非 Copy 的类型，提供 move out 的方法</li>
+</ol>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+
+<span class="attribute">#[<span class="ident">stable</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rust1&quot;</span>, <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;1.0.0&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> {
+    <span class="ident">value</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">stable</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rust1&quot;</span>, <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;1.0.0&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Send</span> {}
+
+<span class="attribute">#[<span class="ident">stable</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rust1&quot;</span>, <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;1.0.0&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+
+<span class="attribute">#[<span class="ident">stable</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rust1&quot;</span>, <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;1.0.0&quot;</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="ident">Cell</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">get</span>())
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="ident">Cell</span> { <span class="ident">value</span>: <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="ident">value</span>) }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) {
+        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">replace</span>(<span class="ident">val</span>);
+        <span class="ident">drop</span>(<span class="ident">old</span>);
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
+        <span class="comment">// SAFETY: This can cause data races if called from a separate thread,</span>
+        <span class="comment">// but `Cell` is `!Sync` so this won&#39;t happen.</span>
+        <span class="kw">unsafe</span> { <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">value</span>.<span class="ident">get</span>() }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">stable</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;move_cell&quot;</span>, <span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;1.17.0&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
+        <span class="self">self</span>.<span class="ident">replace</span>(<span class="ident">Default</span>::<span class="ident">default</span>())
+    }
+}</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0A%0Afn%20main()%20%7B%0A%23%5Bstable(feature%20%3D%20%22rust1%22%2C%20since%20%3D%20%221.0.0%22)%5D%0A%23%5Brepr(transparent)%5D%0Apub%20struct%20Cell%3CT%3A%20%3FSized%3E%20%7B%0A%20%20%20%20value%3A%20UnsafeCell%3CT%3E%2C%0A%7D%0A%0A%23%5Bstable(feature%20%3D%20%22rust1%22%2C%20since%20%3D%20%221.0.0%22)%5D%0Aunsafe%20impl%3CT%3A%20%3FSized%3E%20Send%20for%20Cell%3CT%3E%20where%20T%3A%20Send%20%7B%7D%0A%0A%23%5Bstable(feature%20%3D%20%22rust1%22%2C%20since%20%3D%20%221.0.0%22)%5D%0Aimpl%3CT%3A%20%3FSized%3E%20!Sync%20for%20Cell%3CT%3E%20%7B%7D%0A%0A%23%5Bstable(feature%20%3D%20%22rust1%22%2C%20since%20%3D%20%221.0.0%22)%5D%0Aimpl%3CT%3A%20Copy%3E%20Clone%20for%20Cell%3CT%3E%20%7B%0A%20%20%20%20%23%5Binline%5D%0A%20%20%20%20fn%20clone(%26self)%20-%3E%20Cell%3CT%3E%20%7B%0A%20%20%20%20%20%20%20%20Cell%3A%3Anew(self.get())%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20Eq%20%2B%20Copy%3E%20Eq%20for%20Cell%3CT%3E%20%7B%7D%0A%0Aimpl%3CT%3E%20Cell%3CT%3E%20%7B%0A%0A%20%20%20%20pub%20const%20fn%20new(value%3A%20T)%20-%3E%20Cell%3CT%3E%20%7B%0A%20%20%20%20%20%20%20%20Cell%20%7B%20value%3A%20UnsafeCell%3A%3Anew(value)%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20pub%20fn%20set(%26self%2C%20val%3A%20T)%20%7B%0A%20%20%20%20%20%20%20%20let%20old%20%3D%20self.replace(val)%3B%0A%20%20%20%20%20%20%20%20drop(old)%3B%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20Copy%3E%20Cell%3CT%3E%20%7B%0A%20%20%20%20pub%20fn%20get(%26self)%20-%3E%20T%20%7B%0A%20%20%20%20%20%20%20%20%2F%2F%20SAFETY%3A%20This%20can%20cause%20data%20races%20if%20called%20from%20a%20separate%20thread%2C%0A%20%20%20%20%20%20%20%20%2F%2F%20but%20%60Cell%60%20is%20%60!Sync%60%20so%20this%20won't%20happen.%0A%20%20%20%20%20%20%20%20unsafe%20%7B%20*self.value.get()%20%7D%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%3CT%3A%20Default%3E%20Cell%3CT%3E%20%7B%0A%20%20%20%20%23%5Bstable(feature%20%3D%20%22move_cell%22%2C%20since%20%3D%20%221.17.0%22)%5D%0A%20%20%20%20pub%20fn%20take(%26self)%20-%3E%20T%20%7B%0A%20%20%20%20%20%20%20%20self.replace(Default%3A%3Adefault())%0A%20%20%20%20%7D%0A%7D%0A%7D&amp;edition=2018">Run</a></div>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

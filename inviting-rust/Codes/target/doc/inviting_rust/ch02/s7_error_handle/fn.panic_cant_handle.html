@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `panic_cant_handle` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, panic_cant_handle"><title>inviting_rust::ch02::s7_error_handle::panic_cant_handle - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s7_error_handle</a></p><div id="sidebar-vars" data-name="panic_cant_handle" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s7_error_handle</a>::<wbr><a class="fn" href="">panic_cant_handle</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch02/s7_error_handle.rs.html#242-244" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn panic_cant_handle()</pre><div class="docblock"><h3 id="panic-的两种类型" class="section-header"><a href="#panic-的两种类型">panic 的两种类型：</a></h3>
+<ul>
+<li>Unwinding（栈展开）。</li>
+<li>Aborting（中止）。</li>
+</ul>
+<p>Unwinding 可以使应用程序线程以相对干净的方式关闭。 
+回收所有分配的系统资源，正确删除所有应用程序对象，依此类推。 
+此外，恐慌停止在有问题的线程的边界，而不是杀死整个应用程序过程。 
+所有这一切意味着，如果所有对象都具有明智的析构函数，则尽管有困难，但仍可以从紧急情况中恢复应用程序。</p>
+<p>如果你应用程序是为此目的而设计的，则可以检测到线程紧急情况并重新启动有问题的线程，希望该操作能够正确恢复。 
+在无法关闭应用程序的情况下，例如在关键系统中，类似于Erlang的容错方法可能是有意义的。</p>
+<p>对于Aborting，不存在应用程序恢复的可能性。一旦某些代码中止，应用程序进程将立即终止，这意味着要实现容错功能，就需要进行更加复杂的多进程设计。 
+另外，由于未运行资源析构函数，因此整个系统可能处于不一致状态，这意味着重新启动应用程序可能非常不容易。</p>
+<p>总而言之，仅应在确实不关心应用程序立即崩溃并可能破坏在崩溃过程中操作的任何硬件/操作系统状态的情况下启用Aborting恐慌。</p>
+<p>需要了解一个事实，Rust 目前对 OOM(out of memory)对处理是直接 Aborting ，无论你如何设置Panic类型。</p>
+<h3 id="恐慌安全" class="section-header"><a href="#恐慌安全">恐慌安全：</a></h3>
+<p><a href="https://rustmagazine.github.io/rust_magazine_2021/chapter_1/rust_security_part1.html">Rust Magazine #01 security</a></p>
+<ul>
+<li>catch_unwind</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
+<span class="kw">fn</span> <span class="ident">sum</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>{
+    <span class="ident">a</span> <span class="op">+</span> <span class="ident">b</span>
+}
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> { <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;hello!&quot;</span>); });
+    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_ok</span>());
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> { <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;oh no!&quot;</span>); });
+    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+   <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">sum</span>(<span class="number">1</span>, <span class="number">2</span>));
+}</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0A%0Ause%20std%3A%3Apanic%3B%0Afn%20sum(a%3A%20i32%2C%20b%3A%20i32)%20-%3E%20i32%7B%0A%20%20%20%20a%20%2B%20b%0A%7D%0Afn%20main()%20%7B%0A%20%20%20%20let%20result%20%3D%20panic%3A%3Acatch_unwind(%7C%7C%20%7B%20println!(%22hello!%22)%3B%20%7D)%3B%0A%20%20%20%20assert!(result.is_ok())%3B%0A%20%20%20%20let%20result%20%3D%20panic%3A%3Acatch_unwind(%7C%7C%20%7B%20panic!(%22oh%20no!%22)%3B%20%7D)%3B%0A%20%20%20%20assert!(result.is_err())%3B%0A%20%20%20println!(%22%7B%7D%22%2C%20sum(1%2C%202))%3B%0A%7D&amp;edition=2018">Run</a></div>
+<p>使用 set_hook</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
+<span class="kw">fn</span> <span class="ident">sum</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>{
+    <span class="ident">a</span> <span class="op">+</span> <span class="ident">b</span>
+}
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> { <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;hello!&quot;</span>); });
+    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_ok</span>());
+    <span class="ident">panic</span>::<span class="ident">set_hook</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">panic_info</span><span class="op">|</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">location</span>) <span class="op">=</span> <span class="ident">panic_info</span>.<span class="ident">location</span>() {
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;panic occurred &#39;{}&#39; at {}&quot;</span>,
+                <span class="ident">location</span>.<span class="ident">file</span>(), <span class="ident">location</span>.<span class="ident">line</span>()
+            );
+       } <span class="kw">else</span> {
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t get location information...&quot;</span>);
+       }
+   }));
+   <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="op">|</span><span class="op">|</span> { <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;oh no!&quot;</span>); });
+   <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_err</span>());
+   <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">sum</span>(<span class="number">1</span>, <span class="number">2</span>));
+}</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Ause%20std%3A%3Apanic%3B%0Afn%20sum(a%3A%20i32%2C%20b%3A%20i32)%20-%3E%20i32%7B%0A%20%20%20%20a%20%2B%20b%0A%7D%0Afn%20main()%20%7B%0A%20%20%20%20let%20result%20%3D%20panic%3A%3Acatch_unwind(%7C%7C%20%7B%20println!(%22hello!%22)%3B%20%7D)%3B%0A%20%20%20%20assert!(result.is_ok())%3B%0A%20%20%20%20panic%3A%3Aset_hook(Box%3A%3Anew(%7Cpanic_info%7C%20%7B%0A%20%20%20%20%20%20%20%20if%20let%20Some(location)%20%3D%20panic_info.location()%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20println!(%22panic%20occurred%20'%7B%7D'%20at%20%7B%7D%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20location.file()%2C%20location.line()%0A%20%20%20%20%20%20%20%20%20%20%20%20)%3B%0A%20%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20println!(%22can't%20get%20location%20information...%22)%3B%0A%20%20%20%20%20%20%20%7D%0A%20%20%20%7D))%3B%0A%20%20%20let%20result%20%3D%20panic%3A%3Acatch_unwind(%7C%7C%20%7B%20panic!(%22oh%20no!%22)%3B%20%7D)%3B%0A%20%20%20assert!(result.is_err())%3B%0A%20%20%20println!(%22%7B%7D%22%2C%20sum(1%2C%202))%3B%0A%7D&amp;edition=2018">Run</a></div>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

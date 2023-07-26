@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["understand_channel_and_condvar","构建「无悔」并发系统使用 channel 和 condvar ： 模拟并行组件"],["understand_local_thread","理解本地线程，理解并发并发：同时「应对」很多事的能力并行：同时「执行」很多事的能力相关类型："],["understand_safed_shared_thread","使用 Arc 和 Mutex 安全共享数据"],["understand_shared_thread","线程间共享数据https://doc.rust-lang.org/std/time/struct.Duration.html"]]});

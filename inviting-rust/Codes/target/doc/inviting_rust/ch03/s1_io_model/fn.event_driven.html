@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `event_driven` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, event_driven"><title>inviting_rust::ch03::s1_io_model::event_driven - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a></p><div id="sidebar-vars" data-name="event_driven" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a>::<wbr><a class="fn" href="">event_driven</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch03/s1_io_model.rs.html#247" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn event_driven()</pre><div class="docblock"><h2 id="事件驱动编程模型" class="section-header"><a href="#事件驱动编程模型">事件驱动编程模型</a></h2>
+<p>因为处理 I/O 复用的编程模型相当复杂，为了简化编程，引入了下面两种模型。</p>
+<ul>
+<li>Reactor（反应器） 模式，对应同步I/O，被动的事件分离和分发模型。服务等待请求事件的到来，再通过不受间断的同步处理事件，从而做出反应。</li>
+<li>Preactor（主动器） 模式，对应异步I/O，主动的事件分离和分发模型。这种设计允许多个任务并发的执行，从而提高吞吐量；并可执行耗时长的任务（各个任务间互不影响）。</li>
+</ul>
+<p>Reactor Model: </p>
+<pre><code class="language-text">                                                     +----------------+
+req                                        Dispatch  |                |
++------+                                  +--------&gt; | req handler    |
+|      |                                  |          +----------------+
+|      | +----+                           |
++------+      | event    +------------+   |
+              |          |            |   |
+              +--------&gt; |  Service   |   |Dispatch  +----------------+
+                         |  Handler   +------------&gt; |                |
+req          +---------&gt; |            |   |          | req handler    |
++------+     |           +------------+   |          +----------------+
+|      |     | event                      |
+|      +----+                             |
++------+                                  | Dispatch +----------------+
+                                          +---------&gt;+                |
+                                                     | req handler    |
+                                                     +----------------+
+
+</code></pre>
+<p>三种实现方式：</p>
+<ul>
+<li>单线程模式。 accept()、read()、write()以及connect()操作 都在同一线程。</li>
+<li>工作者线程池模式。非 I/O 操作交给线程池处理</li>
+<li>多线程模式。主Reactor (master) ，负责网络监听 ， 子Reactor(worker) 读写网络数据。</li>
+</ul>
+<p>读写操作流程：</p>
+<ol>
+<li>应用注册读写就绪事件和相关联的事件处理器</li>
+<li>事件分离器等待事件发生</li>
+<li>当发生读写就绪事件，事件分离器调用已注册的事件处理器</li>
+<li>事件处理器执行读写操作</li>
+</ol>
+<p>参与者：</p>
+<ol>
+<li>描述符（handle）：操作系统提供的资源，识别 socket等。</li>
+<li>同步事件多路分离器。开启事件循环，等待事件的发生。封装了 多路复用函数 select/poll/epoll等。</li>
+<li>事件处理器。提供回调函数，用于描述与应用程序相关的某个事件的操作。</li>
+<li>具体的事件处理器。事件处理器接口的具体实现。使用描述符来识别事件和程序提供的服务。</li>
+<li>Reactor 管理器。事件处理器的调度核心。分离每个事件，调度事件管理器，调用具体的函数处理某个事件。</li>
+</ol>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

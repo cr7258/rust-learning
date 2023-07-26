@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `object_safety` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, object_safety"><title>inviting_rust::ch02::s5_trait_and_generic::object_safety - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s5_trait_and_generic</a></p><div id="sidebar-vars" data-name="object_safety" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch02</a>::<wbr><a href="index.html">s5_trait_and_generic</a>::<wbr><a class="fn" href="">object_safety</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch02/s5_trait_and_generic.rs.html#478-480" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn object_safety()</pre><div class="docblock"><h1 id="对象安全" class="section-header"><a href="#对象安全">对象安全</a></h1><h3 id="对象安全-1" class="section-header"><a href="#对象安全-1">对象安全</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="ident">一个</span> <span class="kw">trait</span> <span class="ident">如果能实现自己</span>，<span class="ident">就认为它是对象安全的</span></pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Afn%20main()%20%7B%0A%E4%B8%80%E4%B8%AA%20trait%20%E5%A6%82%E6%9E%9C%E8%83%BD%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%B7%B1%EF%BC%8C%E5%B0%B1%E8%AE%A4%E4%B8%BA%E5%AE%83%E6%98%AF%E5%AF%B9%E8%B1%A1%E5%AE%89%E5%85%A8%E7%9A%84%0A%7D&amp;edition=2018">Run</a></div>
+<p>为什么必须是对象安全呢？</p>
+<p>trait对象，在运行时已经擦除了类型信息，要通过虚表调用相应的方法。不像静态分发那样，trait对象不是为每个类型都实现trait的方法，而是只实现一个副本（自动为其实现自身），结合虚函数去调用。</p>
+<p>现在想一个问题： 假如那个类型没有实现这个方法怎么办？
+实际上，会有很多种情况下，会出现这个问题。运行时确定的类型和方法应该合法的，保证trait对象在运行时可以安全地调用相关的方法。</p>
+<p>比如trait里有泛型函数。这就搞的很复杂了，可能运行时无法确定该调用哪个函数。反正是各种情况吧。所以，为了避免出现这种问题，官方引入了对象安全的概念。
+实际上就是引入了一系列的规则，也就是上面列出的那些。编译器根据这些规则，在编译期判断一个你写的trait对象，是不是合法的。</p>
+<p>比如：trait对象其实在内部维护两个表：safe_vtable和nonself_vtable，标记有where Self: Sized的会被归类到nonself_vtable，也就是说，不会被trait对象调用。
+这样的话，方法标记有where Self: Sized的trait对象自然是安全的，因为这表示 这个方法 只能为 Self: Sized 都类型实现，是有条件的，所以在运行时有可能存在无效（万一有不是Sized的类型调用，就没有该方法）调用。</p>
+<p>如果是合法的，则代表了，这个trait对象在运行时调用方法应该是没问题的。
+不会出现没有实现，或者不知道该调用哪个的情况。
+这就是对象安全的概念。它和内存安全并无直接关系。
+所以，对象安全的本质就是为了让trait对象可以安全地调用相应的方法。</p>
+<p>如果没有Sized的限定，那么就会很容易写出无用的类型。比如 Box，它用做trait对象即便会编译，但是不能用它做任何事情（后面有演示代码）。
+对于更复杂的trait，往往就没有这么明显了，只有在做了大量繁重的工作之后可能会突然发现某个trait对象无法正常调用方法。
+所以，为trait增加Sized限定，然后编译器自动为该trait实现自身，就可以在编译期准确排除无效的trait对象。
+这就是对象安全。需要注意的是，对象安全和内存安全并无直接的关联，它只是保证trait对象在运行时可以安全准确地调用相关的方法。</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+    <span class="kw">trait</span> <span class="ident">StarkFamily</span> {
+        <span class="kw">fn</span> <span class="ident">last_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)  <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+        <span class="kw">fn</span> <span class="ident">totem</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+    }
+
+    <span class="kw">trait</span> <span class="ident">TullyFamily</span> {
+        <span class="kw">fn</span> <span class="ident">territory</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+    }
+
+    <span class="kw">trait</span> <span class="ident">Children</span> {
+        <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">first_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>;
+        <span class="kw">fn</span> <span class="ident">first_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+    }
+
+    <span class="kw">impl</span> <span class="ident">StarkFamily</span> <span class="kw">for</span> <span class="ident">Children</span> {
+        <span class="kw">fn</span> <span class="ident">last_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)  <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>{
+            <span class="string">&quot;Stark&quot;</span>
+        }
+        
+        <span class="kw">fn</span> <span class="ident">totem</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)  <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>{
+            <span class="string">&quot;Wolf&quot;</span>
+        }
+    }
+
+    <span class="kw">impl</span> <span class="ident">TullyFamily</span> <span class="kw">for</span> <span class="ident">Children</span> {
+        <span class="kw">fn</span> <span class="ident">territory</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)  <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>{
+            <span class="string">&quot;Riverrun City&quot;</span> 
+        }
+    }
+
+    <span class="kw">struct</span> <span class="ident">People</span>{
+        <span class="ident">first_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>
+    }
+
+    <span class="kw">impl</span> <span class="ident">Children</span> <span class="kw">for</span> <span class="ident">People</span> {
+        <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">first_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>{
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;hello : {} Stark &quot;</span>, <span class="ident">first_name</span>);
+            <span class="ident">People</span>{<span class="ident">first_name</span>: <span class="ident">first_name</span>}
+        }
+        
+        <span class="kw">fn</span> <span class="ident">first_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>{
+            <span class="self">self</span>.<span class="ident">first_name</span>
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">full_name</span>(<span class="ident">person</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Children</span><span class="op">&gt;</span>) {
+        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot; --- Winter is coming, the lone {:?} dies, the pack lives ---&quot;</span>, <span class="ident">person</span>.<span class="ident">totem</span>());
+        <span class="kw">let</span> <span class="ident">full</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">person</span>.<span class="ident">first_name</span>(), <span class="ident">person</span>.<span class="ident">last_name</span>() );
+        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;I&#39;m {:?}&quot;</span>, <span class="ident">full</span> );
+        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;My Mother come from {:?}&quot;</span>, <span class="ident">person</span>.<span class="ident">territory</span>());
+    }
+
+    <span class="kw">fn</span> <span class="ident">main</span>() {
+        <span class="kw">let</span> <span class="ident">sansa</span> <span class="op">=</span> <span class="ident">People</span>::<span class="ident">new</span>(<span class="string">&quot;Sansa&quot;</span>);
+        <span class="kw">let</span> <span class="ident">aray</span> <span class="op">=</span> <span class="ident">People</span>::<span class="ident">new</span>(<span class="string">&quot;Aray&quot;</span>);
+        
+        <span class="kw">let</span> <span class="ident">starks</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Children</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">sansa</span>);
+        <span class="ident">full_name</span>(<span class="ident">starks</span>);
+        
+        <span class="kw">let</span> <span class="ident">starks</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Children</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">aray</span>);
+        <span class="ident">full_name</span>(<span class="ident">starks</span>);
+    }
+</pre><a class="test-arrow" target="_blank" href="https://play.rust-lang.org/?code=%23!%5Ballow(unused)%5D%0Atrait%20StarkFamily%20%7B%0A%20%20%20%20%20%20%20%20fn%20last_name(%26self)%20%20-%3E%20%26'static%20str%3B%0A%20%20%20%20%20%20%20%20fn%20totem(%26self)%20-%3E%20%26'static%20str%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20trait%20TullyFamily%20%7B%0A%20%20%20%20%20%20%20%20fn%20territory(%26self)%20-%3E%20%26'static%20str%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20trait%20Children%20%7B%0A%20%20%20%20%20%20%20%20fn%20new(first_name%3A%20%26'static%20str)%20-%3E%20Self%20where%20Self%3A%20Sized%3B%0A%20%20%20%20%20%20%20%20fn%20first_name(%26self)%20-%3E%20%26'static%20str%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20impl%20StarkFamily%20for%20Children%20%7B%0A%20%20%20%20%20%20%20%20fn%20last_name(%26self)%20%20-%3E%20%26'static%20str%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Stark%22%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20fn%20totem(%26self)%20%20-%3E%20%26'static%20str%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Wolf%22%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20impl%20TullyFamily%20for%20Children%20%7B%0A%20%20%20%20%20%20%20%20fn%20territory(%26self)%20%20-%3E%20%26'static%20str%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Riverrun%20City%22%20%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20struct%20People%7B%0A%20%20%20%20%20%20%20%20first_name%3A%20%26'static%20str%0A%20%20%20%20%7D%0A%0A%20%20%20%20impl%20Children%20for%20People%20%7B%0A%20%20%20%20%20%20%20%20fn%20new(first_name%3A%20%26'static%20str)%20-%3E%20Self%20where%20Self%3A%20Sized%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20println!(%22hello%20%3A%20%7B%7D%20Stark%20%22%2C%20first_name)%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20People%7Bfirst_name%3A%20first_name%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20fn%20first_name(%26self)%20-%3E%20%26'static%20str%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20self.first_name%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20full_name(person%3A%20Box%3Cdyn%20Children%3E)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%20---%20Winter%20is%20coming%2C%20the%20lone%20%7B%3A%3F%7D%20dies%2C%20the%20pack%20lives%20---%22%2C%20person.totem())%3B%0A%20%20%20%20%20%20%20%20let%20full%20%3D%20format!(%22%7B%7D%20%7B%7D%22%2C%20person.first_name()%2C%20person.last_name()%20)%3B%0A%20%20%20%20%20%20%20%20println!(%22I'm%20%7B%3A%3F%7D%22%2C%20full%20)%3B%0A%20%20%20%20%20%20%20%20println!(%22My%20Mother%20come%20from%20%7B%3A%3F%7D%22%2C%20person.territory())%3B%0A%20%20%20%20%7D%0A%0A%20%20%20%20fn%20main()%20%7B%0A%20%20%20%20%20%20%20%20let%20sansa%20%3D%20People%3A%3Anew(%22Sansa%22)%3B%0A%20%20%20%20%20%20%20%20let%20aray%20%3D%20People%3A%3Anew(%22Aray%22)%3B%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20let%20starks%3A%20Box%3Cdyn%20Children%3E%20%3D%20Box%3A%3Anew(sansa)%3B%0A%20%20%20%20%20%20%20%20full_name(starks)%3B%0A%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20let%20starks%3A%20Box%3Cdyn%20Children%3E%20%3D%20Box%3A%3Anew(aray)%3B%0A%20%20%20%20%20%20%20%20full_name(starks)%3B%0A%20%20%20%20%7D&amp;edition=2018">Run</a></div>
+<p>对象安全规则 Rust 源码：<a href="https://github.com/rust-lang/rust/blob/941343e0871dd04ea774e8cee7755461b144ef29/compiler/rustc_middle/src/traits/mod.rs#L643">https://github.com/rust-lang/rust/blob/941343e0871dd04ea774e8cee7755461b144ef29/compiler/rustc_middle/src/traits/mod.rs#L643</a></p>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

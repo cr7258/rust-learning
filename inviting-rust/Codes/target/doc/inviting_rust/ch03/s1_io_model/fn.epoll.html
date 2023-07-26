@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `epoll` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, epoll"><title>inviting_rust::ch03::s1_io_model::epoll - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a></p><div id="sidebar-vars" data-name="epoll" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a>::<wbr><a class="fn" href="">epoll</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch03/s1_io_model.rs.html#142" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn epoll()</pre><div class="docblock"><h2 id="epoll" class="section-header"><a href="#epoll">epoll</a></h2>
+<pre><code class="language-text">                        +--------------------------------+     +-------------------------+
+                        | epoll_ctl                      |     | epoll_wait              |
+                        |                                |     |                         |
+                        |                                |     |         +----+          |
+                        |                 +---+          |     |         |    |          |
+                        |                 |   |          |     |         |    |          |
+                        |               +-+---+--+       |     |         +--+-+          |
+                        |               |        |       |     |            |            |
+                        |            +--++     +-++      |     |            |            |
+epoll_create  +----&gt;    |            |   |     |  |      |     |         +--+-+          |
+                        |            +-+-+     +--+      +----&gt;+         |    |          |
+                        |              |                 |event|         |    |          |
+                        |         +----+--+              |     |         +--+-+          |
+                        |         |       |              |     |            |            |
+                        |         ++      |              |     |            |            |
+                        |        +--+   +-+-+            |     |         +--+-+          |
+                        |        |  |   |   |            |     |         |    |          |
+                        |        +--+   +---+            |     |         |    |          |
+                        |                                |     |         +----+          |
+                        |                    红 黑 树     |     |                 链 表    |
+                        +--------------------------------+     +-------------------------+
+
+
+</code></pre>
+<ul>
+<li>epoll_create(int size) : 内核产生一个epoll实例数据结构，并返回一个epfd</li>
+<li>epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)：将被监听的描述符添加到红黑树或从红黑树中删除或者对监听事件进行修改。</li>
+<li>epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout): 阻塞等待注册的事件发生，返回事件的数目，并将触发的事件写入events数组中</li>
+</ul>
+<p>epoll 两种触发机制：</p>
+<ul>
+<li>水平触发机制（LT)。缓冲区只要有数据就触发读写。epoll 默认工作方式。select/poll只支持该方式。</li>
+<li>边缘触发机制（ET)。缓冲区空或满的状态才触发读写。nginx 使用该方式，避免频繁读写。</li>
+</ul>
+<p>惊群问题：</p>
+<p>当多个进程/线程调用epoll_wait时会阻塞等待，当内核触发可读写事件，所有进程/线程都会进行响应，但是实际上只有一个进程/线程真实处理这些事件。
+Liux 4.5 通过引入 EPOLLEXCLUSIVE 标识来保证一个事件发生时候只有一个线程会被唤醒，以避免多侦听下的惊群问题。</p>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>

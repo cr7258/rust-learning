@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `basic_concept` fn in crate `inviting_rust`."><meta name="keywords" content="rust, rustlang, rust-lang, basic_concept"><title>inviting_rust::ch03::s1_io_model::basic_concept - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../inviting_rust/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a></p><div id="sidebar-vars" data-name="basic_concept" data-ty="fn" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Function <a href="../../index.html">inviting_rust</a>::<wbr><a href="../index.html">ch03</a>::<wbr><a href="index.html">s1_io_model</a>::<wbr><a class="fn" href="">basic_concept</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/inviting_rust/ch03/s1_io_model.rs.html#93" title="goto source code">[src]</a></span></h1><pre class="rust fn">pub fn basic_concept()</pre><div class="docblock"><h1 id="异步-io-模型" class="section-header"><a href="#异步-io-模型">异步 I/O 模型</a></h1><h2 id="基本概念" class="section-header"><a href="#基本概念">基本概念</a></h2>
+<ul>
+<li>同步和异步，关注的是消息通信机制。（调用者视角）
+<ul>
+<li>同步，发出一个调用，在没有得到结果之前不返回。</li>
+<li>异步，发出一个调用，在没有得到结果之前返回。</li>
+</ul>
+</li>
+<li>阻塞和非阻塞，关注的是程序等待调用结果的状态。（被调用者视角）
+<ul>
+<li>阻塞，在调用结果返回之前，线程被挂起。</li>
+<li>非阻塞，在调用结果返回之前，线程不会被挂起。</li>
+</ul>
+</li>
+</ul>
+<p>阻塞，与系统调用有关。</p>
+<h3 id="io-模型" class="section-header"><a href="#io-模型">I/O 模型</a></h3>
+<pre><code class="language-text">                                 +-+ 阻 塞 I/O (BIO)
+                                 |
+                                 +-+ 非 阻 塞 I/O (NIO)
+                                 |
+              +----+ 同 步 I/O +--+
+              |                  |
+              |                  +-+ I/O 多 路 复 用
+              |                  |
+              |                  +-+ 信 号 驱 动 I/O
+I/O 模 型  +---+
+              |
+              |
+              |                  +-+ Linux (AIO)
+              |                  |         (io_uring)
+              +----+ 异 步 I/O +--+
+                                 |
+                                 +-+ windows (IOCP)
+
+</code></pre>
+<h3 id="同步阻塞io-blocking-io" class="section-header"><a href="#同步阻塞io-blocking-io">同步阻塞I/O (blocking I/O)</a></h3>
+<pre><code class="language-text">Application               kernel
++---------+            +-----------+  +---+
+|         |   syscall  | no        |      |
+|   Read  | +--------&gt; | datagram  |      |
+| recvfrom|            | ready     |      |
+|         |            |    +      |      +-+ wait for
+|         |            |    |      |      +-+ data
+|         |            |    v      |      |
+|         |            | datagram  |      |
+|         |            | ready     |  +---+
+|         |            |           |
+|         |            | copy      |  +---+
+|         |            | datagram  |      |
+|process  |            |    +      |      +-+ copy data
+|datagram |   return   |    |      |      +-+ from kernel to user
+|         | &lt;--------+ |    v      |      |
+|         |            |  copy     |  +---+
+|         |            |  complete |
++---------+            +-----------+
+</code></pre>
+<p>输入操作两个阶段：</p>
+<ol>
+<li>进程等待内核把数据准备好；这个阶段可以阻塞也可非阻塞，设置socket属性。
+<ul>
+<li>阻塞： recvfrom 阻塞线程直到返回数据就绪的结果。</li>
+<li>非阻塞：立即返回一个错误，轮询直到数据就绪。</li>
+</ul>
+</li>
+<li>从内核缓冲区向进程缓冲区复制数据。（一直阻塞）</li>
+</ol>
+<p>异步I/O，recvfrom总是立即返回，两个阶段都由内核完成。</p>
+<h3 id="io-多路复用io-multiplexing-" class="section-header"><a href="#io-多路复用io-multiplexing-">I/O 多路复用（I/O Multiplexing )</a></h3>
+<p>IO多路复用是一种同步IO模型，实现一个线程可以监视多个文件句柄。</p>
+<p>支持I/O多路复用的系统调用有 select/pselect/poll/epoll，本质都是 同步 I/O，因为数据拷贝都是阻塞的。
+通过 select/epoll 来判断数据报是否准备好，即判断可读可写状态。</p>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="inviting_rust"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>
