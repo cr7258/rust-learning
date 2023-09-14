@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/rust_programming_language/03_common_programming_concepts/3.2_data_type/array/target/debug/array: /Users/I576375/Code/rust-learning/rust_programming_language/03_common_programming_concepts/3.2_data_type/array/src/main.rs
