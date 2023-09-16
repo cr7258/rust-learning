@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/rust_programming_language/chapter06/6.1/enumerations/target/debug/enumerations: /Users/I576375/Code/rust-learning/rust_programming_language/chapter06/6.1/enumerations/src/main.rs
