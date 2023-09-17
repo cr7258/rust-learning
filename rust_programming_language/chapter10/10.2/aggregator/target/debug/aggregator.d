@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/rust_programming_language/chapter10/10.2/aggregator/target/debug/aggregator: /Users/I576375/Code/rust-learning/rust_programming_language/chapter10/10.2/aggregator/src/lib.rs /Users/I576375/Code/rust-learning/rust_programming_language/chapter10/10.2/aggregator/src/main.rs
