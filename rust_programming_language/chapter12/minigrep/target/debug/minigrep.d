@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/rust_programming_language/chapter12/minigrep/target/debug/minigrep: /Users/I576375/Code/rust-learning/rust_programming_language/chapter12/minigrep/src/lib.rs /Users/I576375/Code/rust-learning/rust_programming_language/chapter12/minigrep/src/main.rs
