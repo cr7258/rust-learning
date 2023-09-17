@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/rust_programming_language/chapter09/9.2/username/target/debug/username: /Users/I576375/Code/rust-learning/rust_programming_language/chapter09/9.2/username/src/main.rs
