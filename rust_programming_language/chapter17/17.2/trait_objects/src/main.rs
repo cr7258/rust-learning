@@ -6,7 +6,7 @@ pub trait Draw {
 // 泛型类型参数一次只能替代一个具体类型，而 trait 对象则允许在运行时替代多种具体类型。
 // 这限制了 Screen 实例必须拥有一个全是 Button 类型或者全是 TextField 类型的组件列表。如果
 pub struct Screen {
-    pub components: Vec<Box<dyn Draw>>,
+    pub components: Vec<Box<dyn Draw>>, // dyn 是 Rust 中的一个关键字，用于声明 trait 对象。Trait 对象是一种允许在运行时处理不同类型的对象，只要它们实现了特定的 trait。
 }
 
 // 为什么在 Vec<Box<dyn Draw>> 中需要使用 Box，原因在于 trait 对象的大小不是在编译时确定的，
