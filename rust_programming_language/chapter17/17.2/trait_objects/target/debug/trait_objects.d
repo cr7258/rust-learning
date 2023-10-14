@@ -1,0 +1,1 @@
+/Users/I576375/Code/rust-learning/rust_programming_language/chapter17/17.2/trait_objects/target/debug/trait_objects: /Users/I576375/Code/rust-learning/rust_programming_language/chapter17/17.2/trait_objects/src/main.rs
